@@ -19,7 +19,7 @@ terraform {
 }
 
 provider "aws" {
-  region     = var.aws_region
+  region = var.aws_region
 }
 
 locals {
@@ -39,7 +39,7 @@ locals {
 ################################################################################
 # Supporting Resources
 ################################################################################
-
+/*
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -67,4 +67,5 @@ module "vpc" {
 
   tags = local.tags
 }
+*/
 
