@@ -39,7 +39,7 @@ locals {
 ################################################################################
 # Supporting Resources
 ################################################################################
-/*
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -67,5 +67,11 @@ module "vpc" {
 
   tags = local.tags
 }
-*/
+
+module "ecr" {
+  source = "./modules/repository"
+
+  name = local.name
+}
+
 
