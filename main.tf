@@ -84,7 +84,7 @@ locals {
     GithubOrg  = "terraform-aws-modules"
   }
 }
-
+/*
 module "eks" {
   source = "terraform-aws-modules/eks/aws"
 
@@ -336,3 +336,4 @@ module "aws_cloudwatch_observability" {
     }
   }
 }
+*/
