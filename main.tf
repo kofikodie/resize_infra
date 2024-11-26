@@ -291,10 +291,47 @@ module "vpc" {
   tags = local.tags
 }
 
+################################################################################
+# Image Repository
+################################################################################
+
 module "ecr" {
   source = "./modules/repository"
 
   name = local.name
+}
+
+################################################################################
+# Supporting Resources
+################################################################################
+
+module "bucket" {
+  source = "./modules/bucket"
+
+  primary_name = "${local.name}-resize-primary-image"
+  tmp_name     = "${local.name}-resize-tmp-image"
+}
+
+################################################################################
+# Supporting Resources
+################################################################################
+
+module "endpoints" {
+  source = "/modules/endpoints"
+
+  vpc_id                 = module.vpc.vpc_id
+  region                 = local.region
+  private_route_table_id = module.vpc.private_route_table_ids
+}
+
+################################################################################
+# Queue
+################################################################################
+
+module "queue" {
+  source = "./modules/sqs"
+
+  name = "${local.name}-queue"
 }
 
 ################################################################################
