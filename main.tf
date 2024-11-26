@@ -197,8 +197,6 @@ resource "helm_release" "karpenter" {
       interruptionQueue: ${module.karpenter.queue_name}
     EOT
   ]
-
-  depends_on = [module.eks]
 }
 
 resource "kubectl_manifest" "karpenter_node_class" {
