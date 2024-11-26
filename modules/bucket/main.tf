@@ -39,7 +39,7 @@ resource "aws_s3_bucket_public_access_block" "primary_public_access_block" {
 
 
 resource "aws_s3_bucket" "tmp" {
-  bucket = var.primary_name
+  bucket = var.tmp_name
 }
 
 resource "aws_s3_bucket_policy" "tmp_policy" {
