@@ -8,7 +8,7 @@ variable "region" {
   type        = string
 }
 
-variable "private_route_table_id" {
+variable "private_route_table_ids" {
   description = "The private route table ID"
-  type        = string
+  type        = list(string)
 }
