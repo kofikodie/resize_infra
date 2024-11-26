@@ -53,8 +53,8 @@ resource "aws_s3_bucket_policy" "tmp_policy" {
         Principal = "*",
         Action    = "*",
         Resource = [
-          "${aws_s3_bucket.primary.arn}/*",
-          "${aws_s3_bucket.primary.arn}"
+          "${aws_s3_bucket.tmp.arn}/*",
+          "${aws_s3_bucket.tmp.arn}"
         ],
       },
     ],
