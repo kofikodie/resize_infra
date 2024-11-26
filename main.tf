@@ -317,7 +317,7 @@ module "bucket" {
 ################################################################################
 
 module "endpoints" {
-  source = "/modules/endpoints"
+  source = "./modules/endpoints"
 
   vpc_id                 = module.vpc.vpc_id
   region                 = local.region
