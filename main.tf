@@ -6,7 +6,7 @@ terraform {
     organization = "dragon-ws"
 
     workspaces {
-      name = "resize"
+      name = "resize_infra"
     }
   }
 
@@ -35,12 +35,16 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
 }
 
 provider "aws" {
-  region = "us-east-1"
-  alias  = "virginia"
+  region     = "us-east-1"
+  alias      = "virginia"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
 }
 
 data "aws_eks_cluster_auth" "cluster_auth" {
