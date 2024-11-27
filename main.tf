@@ -114,7 +114,7 @@ module "eks" {
   eks_managed_node_groups = {
     karpenter = {
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["m5.large"]
+      instance_types = ["t3.medium"]
 
       min_size     = 1
       max_size     = 3
