@@ -71,13 +71,22 @@ provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.eks.token
 }
 
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  token                  = data.aws_eks_cluster_auth.eks.token
+}
+
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
 locals {
-  name   = "resize-${basename(path.cwd)}"
+  name   = "resize-cluster"
   region = var.aws_region
+
+  role_name   = "s3-sa-role-${local.name}"
+  policy_name = "s3-sa-policy-${local.name}"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -89,6 +98,9 @@ locals {
   }
 }
 
+################################################################################
+# EKS
+################################################################################
 module "eks" {
   source = "terraform-aws-modules/eks/aws"
 
@@ -148,6 +160,43 @@ module "eks" {
   tags = local.tags
 }
 
+################################################################################
+# SA
+################################################################################
+module "s3_sa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.44"
+
+  role_name = local.role_name
+
+  role_policy_arns = {
+    s3_full_access  = "arn:aws:iam::aws:policy/AmazonS3FullAccess"  #ch to least privilege
+    sqs_full_access = "arn:aws:iam::aws:policy/AmazonSQSFullAccess" #ch to least privilege
+  }
+
+  oidc_providers = {
+    cluster = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["default:s3-account"]
+    }
+  }
+
+  depends_on = [module.eks]
+}
+
+resource "kubernetes_service_account" "s3_account" {
+  automount_service_account_token = true
+  metadata {
+    name      = "s3-account"
+    namespace = "default"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = module.s3_sa.iam_role_arn
+    }
+  }
+  depends_on = [
+    module.eks,
+  ]
+}
 ################################################################################
 # Karpenter
 ################################################################################
