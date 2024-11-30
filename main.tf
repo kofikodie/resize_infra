@@ -290,7 +290,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
           requirements:
             - key: "karpenter.k8s.aws/instance-category"
               operator: In
-              values: ["c", "m", "r"]
+              values: ["m"]
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
               values: ["4", "8", "16", "32"]
