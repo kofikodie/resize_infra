@@ -129,7 +129,7 @@ module "eks" {
       instance_types = ["t3.medium"]
 
       min_size     = 1
-      max_size     = 2
+      max_size     = 3
       desired_size = 1
 
       taints = {
@@ -292,21 +292,29 @@ resource "kubectl_manifest" "karpenter_node_pool" {
           requirements:
             - key: "karpenter.k8s.aws/instance-category"
               operator: In
-              values: ["m"]
+              values: ["c", "m"]
+              minValues: 2
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
-              values: ["4", "8", "16", "32"]
+              values: ["1", "2"]
+            - key: "topology.kubernetes.io/zone"
+              operator: In
+              values: ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
             - key: "karpenter.k8s.aws/instance-hypervisor"
               operator: In
               values: ["nitro"]
             - key: "karpenter.k8s.aws/instance-generation"
               operator: Gt
               values: ["2"]
+            - key: "karpenter.sh/capacity-type"
+              operator: In
+              values: ["spot", "on-demand"]
       limits:
         cpu: 1000
       disruption:
-        consolidationPolicy: WhenEmpty
-        consolidateAfter: 30s
+        budgets:
+          - nodes: 30%
+        consolidationPolicy: WhenUnderutilized
   YAML
 
   depends_on = [
