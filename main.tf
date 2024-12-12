@@ -128,7 +128,7 @@ module "eks" {
       instance_types = ["t3.medium"]
 
       min_size     = 1
-      max_size     = 3
+      max_size     = 2
       desired_size = 1
 
       taints = {
@@ -299,6 +299,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             - key: "topology.kubernetes.io/zone"
               operator: In
               values: ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+              minValues: 2
             - key: "karpenter.k8s.aws/instance-hypervisor"
               operator: In
               values: ["nitro"]
@@ -309,7 +310,8 @@ resource "kubectl_manifest" "karpenter_node_pool" {
               operator: In
               values: ["spot", "on-demand"]
       limits:
-        cpu: 1000
+        cpu: 3000
+        memory: 3000Gi
       disruption:
         budgets:
           - nodes: 30%
