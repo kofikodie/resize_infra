@@ -94,23 +94,28 @@ Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. It pro
 make argocd-install
 ```
 
-2. **Configure LoadBalancer and Get URL**
+2. **Configure LoadBalancer**
+```bash
+make argocd-set-lb-url
+```
+
+3. **Get LoadBalancer URL**
 ```bash
 make argocd-get-lb-url
 ```
 
-3. **Get Admin Password**
+4. **Get Admin Password**
 ```bash
 make argocd-password
 ```
 
-4. **Access ArgoCD UI**
+5. **Access ArgoCD UI**
 Visit the LoadBalancer URL in your browser (using HTTPS)
 ```bash
 https://<LOADBALANCER_URL>
 ```
 
-5. **Login to ArgoCD CLI**
+6. **Login to ArgoCD CLI**
 ```bash
 make argocd-login
 ```

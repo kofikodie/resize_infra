@@ -6,10 +6,15 @@ argocd-password:
 	@kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 	@echo
 
+# Set LoadBalancer URL
+argocd-set-lb-url:
+	@echo "ArgoCD LoadBalancer URL:"
+	@kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
+	@echo
+
 # Get LoadBalancer URL
 argocd-get-lb-url:
 	@echo "ArgoCD LoadBalancer URL:"
-	@kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
 	@kubectl get svc argocd-server -n argocd -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"
 	@echo
 
