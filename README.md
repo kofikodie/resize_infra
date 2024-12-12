@@ -79,60 +79,148 @@ aws-load-balancer-controller   2/2     2            2           84s
 
 Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. It provides a declarative way to define application delivery: Continuous Deployment, Progressive Delivery, Blue Green Deployments, Automated Rollbacks, etc.
 
-## ArgoCD Installation
+## ArgoCD Setup and Usage
 
-### Prerequisites
+## Prerequisites
+- Kubernetes cluster with EKS
+- kubectl configured to access your cluster
+- Helm v3+
+- Make utility installed
 
-Download the ArgoCD CLI from the [ArgoCD Releases](https://argo-cd.readthedocs.io/en/stable/cli_installation/) page.
+## Installation and Setup
 
-### Install ArgoCD on Kubernetes
-
+1. **Install ArgoCD**
 ```bash
 make argocd-install
 ```
 
-### Access ArgoCD-UI
-
-To access the ArgoCD-UI, you need to run the following command:
-
-
+2. **Configure LoadBalancer and Get URL**
 ```bash
-make argocd-ui-lb
+make argocd-get-lb-url
 ```
 
-Then run the manifests in the chart starting with the service
-
-Now you can access the ArgoCD-UI on http://<load_balancer_dns_name>
-
-## ArgoCD Login
-
-To login to ArgoCD, you need to run the following command:
-
-First you need to get the password for the admin user:
-
+3. **Get Admin Password**
 ```bash
-make argocd-get-password
+make argocd-password
 ```
 
-Then you need to login to ArgoCD:
-
+4. **Access ArgoCD UI**
+Visit the LoadBalancer URL in your browser (using HTTPS)
 ```bash
-argocd login <load_balancer_dns_name> --username admin --password <password>
+https://<LOADBALANCER_URL>
 ```
 
-## ArgoCD Deployments
-
-### Deploying the application from git repository
-
-To deploy the application from git repository, you need to first:
-
-set the current namespace to argocd running the following command: 
+5. **Login to ArgoCD CLI**
 ```bash
-kubectl config set-context --current --namespace=argocd
+make argocd-login
 ```
 
-Then you need to run the following command:
+## Managing Applications
 
+### Create a New Application
 ```bash
-argocd app create <application_name> --repo <url_git_repo> --path <path> --dest-server https://kubernetes.default.svc --dest-namespace default --sync-policy automated
+make argocd-create-app NAME=myapp REPO=https://github.com/org/repo PATH=k8s/
 ```
+
+### List All Applications
+```bash
+make argocd-list-apps
+```
+
+### Sync an Application
+```bash
+make argocd-sync-app NAME=myapp
+```
+
+### Delete an Application
+```bash
+make argocd-delete-app NAME=myapp
+```
+
+## Application Configuration
+
+Applications can be defined in Git using the following format:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/your-repo.git
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+```
+
+## Best Practices
+
+1. **GitOps Workflow**
+   - Keep all Kubernetes manifests in Git
+   - Use branches for environments
+   - Implement pull request reviews
+
+2. **Application Structure**
+   - Use Helm charts for complex applications
+   - Organize manifests by environment
+   - Use ApplicationSets for similar applications
+
+3. **Security**
+   - Enable SSO integration
+   - Use RBAC for team access
+   - Regularly rotate credentials
+
+4. **Monitoring**
+   - Enable metrics collection
+   - Set up alerts for sync failures
+   - Monitor resource usage
+
+## Troubleshooting
+
+1. **UI Not Accessible**
+   ```bash
+   # Check ArgoCD pods
+   kubectl get pods -n argocd
+   
+   # Check ArgoCD services
+   kubectl get svc -n argocd
+   ```
+
+2. **Application Not Syncing**
+   ```bash
+   # Check application status
+   argocd app get myapp
+   
+   # Check application logs
+   kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller
+   ```
+
+3. **Authentication Issues**
+   ```bash
+   # Reset admin password
+   kubectl -n argocd patch secret argocd-initial-admin-secret \
+     -p '{"data": {"password": null}}'
+   ```
+
+## Available Make Commands
+| Command | Description |
+|---------|-------------|
+| `make argocd-install` | Install ArgoCD |
+| `make argocd-get-lb-url` | Get LoadBalancer URL |
+| `make argocd-password` | Get admin password |
+| `make argocd-login` | Login to ArgoCD CLI |
+| `make argocd-create-app` | Create new application |
+| `make argocd-list-apps` | List all applications |
+| `make argocd-sync-app` | Sync an application |
+| `make argocd-delete-app` | Delete an application |
